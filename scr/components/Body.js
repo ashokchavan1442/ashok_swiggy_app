@@ -1,22 +1,21 @@
-import RestaurantCard from "./RestaurantCard";
+import RestaurantCard,{withPromtedLabel} from "./RestaurantCard";
 import { useEffect, useState } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
+import UserContext from "../utils/UserContext";
 const Body = () => {
   const[listOfRestaurants, setListOfRestaurants]=useState([]);
   const[filtedrestaurant, setFiltedrestaurant]=useState([]);
   const[searchText, setSearchText]=useState("");
-
+  const RestaurantCardPromoted = withPromtedLabel(RestaurantCard);
   useEffect(()=>{
-    console.log('useeffect called');
     fetchData();
   },[]);
   const fetchData = async ()=>{
-    const data=await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9715987&lng=77.5945627&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING");
+    const data=await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9718501&lng=77.595969&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING");
     const json = await data.json();
-    console.log(json);
-    const restaurantsList=json.data.cards[5].card.card.gridElements.infoWithStyle.restaurants
+    const restaurantsList=json.data.cards[4].card.card.gridElements.infoWithStyle.restaurants
 
     setListOfRestaurants(restaurantsList);
     setFiltedrestaurant(restaurantsList)
@@ -27,6 +26,7 @@ const Body = () => {
   if(onlineStatus=== false)
   return(
 <h1>Looks like you're offline!!! Please check your internet connection;</h1>)
+
   return listOfRestaurants.length ===0 ?(<Shimmer />):(
     <div className="body">
         <div className="filter flex">
@@ -46,10 +46,13 @@ const Body = () => {
           setListOfRestaurants(filteredList);
           }}>Top Rated Restaurant</button>
      </div>
+
+
+
       </div>
       <div className="flex flex-wrap">
         {filtedrestaurant.map( (restaurant) =>(
-       <Link to={"/restaurant/"+restaurant.info.id} key={restaurant.info.id}><RestaurantCard  resdata={restaurant} /></Link> 
+       <Link to={"/restaurant/"+restaurant.info.id} key={restaurant.info.id}>{restaurant.info.promoted?<RestaurantCardPromoted  resdata={restaurant}/>:<RestaurantCard  resdata={restaurant} />}</Link> 
         ))}
       </div>
     </div>
